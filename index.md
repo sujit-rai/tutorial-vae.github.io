@@ -14,10 +14,11 @@ The outline of the tutorial is as follows :
   - Effect of change in weightage for KL divergance during training
   - Effect of weightage of KL divergance on disentangled representation learning
   - Shortcoming of VAE
+- Applications of VAE
 
-# Header 1
+## Autoencoders
 
-This is a normal paragraph following a header. GitHub is a code hosting platform for version control and collaboration. It lets you and others work together on projects from anywhere.
+These are machine learning models under unsupervised learning that come with a goal to learn good representations by trying to reconstruct the input itself. Main problem of autoencoders is not let it learn a identity function which is alleviated by regularized autoencoders(eg Sparse Autoencoders). Sparse Autoencoders come with a motive of getting sparse representations in latent space which essentially means that only few neurons are active for a particular data point. This sparse constraint in latent space forces the model to learn more good representations. In regularized autoencoders, we actually misuse the meaning of regularization. By definition regularization is our prior belief on distribution of model’s parameters where as in regularized autoencoders the regularization is a prior assumed on latent space which is not on parameters rather on data.
 
 ## Header 2
 
