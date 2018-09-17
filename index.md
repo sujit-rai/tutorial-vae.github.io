@@ -1,14 +1,19 @@
 ---
 layout: default
 ---
+This is a preliminary report about the tutorial on Variational AutoEncoder. This report consists of short summary about the concepts and experiments that will be discussed in the tutorial.
 
-Text can be **bold**, _italic_, or ~~strikethrough~~.
-
-[Link to another page](./another-page.html).
-
-There should be whitespace between paragraphs.
-
-There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
+The outline of the tutorial is as follows :
+- Basics of autoencoders
+- Generative models
+- Intuition behind Variational autoencoder
+- Maths behind Variational autoencoder
+- Experiments 
+  - Latent Space Visualizations
+  - Visualization of cluster formation
+  - Effect of change in weightage for KL divergance during training
+  - Effect of weightage of KL divergance on disentangled representation learning
+  - Shortcoming of VAE
 
 # Header 1
 
