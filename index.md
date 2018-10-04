@@ -7,7 +7,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - Basics of autoencoders
 - Generative models
 - Problem Setting
-- Intuition behind Variational autoencoder
+- Introduction to Variational autoencoder
 - Maths behind Variational autoencoder
 - Experiments 
   - Latent Space Visualizations
@@ -32,8 +32,9 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - Lets introduce some notations that will be used in upcoming sections
 > X ==> input data <br/>
+> N ==> Number of instances in training data <br/>
 > X<sub>i</sub> ==> i<sup>th</sup> instance of input data <br/>
-> N ==> dimension of input data <br/>
+> D ==> dimension of input data <br/>
 > Z ==> dimension of latent space <br/>
 > P(X) ==> Probability distribution of Input <br/>
 
@@ -43,7 +44,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 	- _Overcomplete Autoencoders_
 	> The autoencoders where **latent space dimension is more than the input dimension** are called as Overcomplete Autoencoders.
 	>
-	> It seems counter-intuitive in the first reading but it has been empirically shown that provided enough regularization on model parameters we can still can learn good reprentations.
+	> It seems counter-intuitive in the first reading but it has been empirically shown that provided enough regularization on model parameters we can still can learn good representations.
 	>
 	> We will not discuss this variant in detail because it is out of the scope of tutorial.
 	- _Undercomplete Autoencoders_
@@ -62,7 +63,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - One can question what can we leverage out of such model. So lets see some use cases :
 	> We can generate data points following P(X) on the fly.
 	>
-	> Henceforth we need not save the dataset once we learn a generative model on it.
+	> Henceforth we need not save the dataset once we learn a generative model on it. Mathematically we learn the marginal distribution on X.
 	>
 	> Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as representation learning is that if a model can produce instances similar to training data distribution then it must have learnt some useful properties about the training instances too).
 	>
@@ -71,11 +72,35 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - Great! Now we would explore that why is it hard to achieve a generative model.
 	> Let's revisit the definition of Generative model i.e models which come with an objective of generating instances similar to P(X) but wait, **do we even know what is P(X) ?**
 	>
-	> The problem is we have no prior knowledge on input data distribution.
+	> The problem is even if we have some prior knowledge on input data distribution, still approximating marginal distribution of X is intractable.(Under problem setting we will go in more detail)
 	>
-	> Therefore we would like to make use of inference models which actually tries to infer P(X) by observing X.(Under problem setting we will go in more detail)
+	> Therefore we would like to make use of inference models which actually tries to infer P(X) by observing X.
 
 <!--These type of machine learning models come with a goal to learn the true data distribution. Intuitive motivation is that if a model is able to generate plausible samples close to train data distribution then it must have learnt very well representations too. These are useful where data collection is hard or next to impossible, henceforth we could use generative models to generate samples in order to augment in existing dataset. -->
+
+## Problem Setting
+-
+		![alt text](images/observation_model.png)
+
+- Consider X as input data having "N" i.i.d data points.
+
+- We assume that the input data is generated following a random process which involves a _hidden_ continuous random variable **z**.
+
+- Process of generating data is done in two steps which are as follows : 
+	> **Step 1** : Value z<sup>i</sup> is generated from some prior distribution p<sub>&theta;*</sub>(z).
+	>
+	> **Step 2** : Then a value of x<sup>i</sup> is generated following some conditional distribution i.e p<sub>&theta;*</sub>(x\|z).
+	> 
+- We assume that prior p<sub>&theta;*</sub>(z) and likelihood p<sub>&theta;\*</sub>(x\|z) come from parametric families of distribution p<sub>&theta;</sub>(z) and p<sub>&theta;</sub>(x\|z) respectively.
+
+- Therefore in this problem setting, many things are hidden from us like true parameters(&theta;*) and values z<sup>i</sup>.
+
+- Let us revisit the point that why learning marginal distribution of X is intractable.
+	- Marginal distribution can be written as follows : 
+
+		![alt text](images/marginal.png)
+
+	- Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.
 
 ## Intuition behind VAE
 
