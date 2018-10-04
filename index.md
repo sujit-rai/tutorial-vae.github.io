@@ -7,6 +7,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - Basics of autoencoders
 - Generative models
 - Problem Setting
+- Connecting Neural Networks in Probability World
 - Introduction to Variational autoencoder
 - Maths behind Variational autoencoder
 - Experiments 
@@ -101,6 +102,29 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 		![alt text](images/marginal.png)
 
 	- Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.
+
+- Now we are ready to define the problems which authors of [VAE](https://arxiv.org/abs/1312.6114) try to solve : 
+	> **Maximum likelihood estimation for the parameters &theta;**.<br/>One can see their use as mimicing the hidden process to generate data similar to real data.
+	>
+	> **Approximating posterior inference of latent variable z given a observable value x.**
+	> Such inference can be used in representation learning tasks.
+	> 
+	> **Learning the marginal distribution over X.**<br/>
+	> This is useful for the applications where marginals are required, for example denoising.
+
+## Connecting Neural Networks in Probability World
+
+- Lets define an recognition model Q<sub>&phi;</sub>(z\|x) which is an approximation to true posterior P<sub>&theta;</sub>(z\|x).
+
+- From coding theory perspective one can look the latent dimension values(z<sub>i</sub>) as latent codes or representations which are corresponding to data instances(x<sub>i</sub>).
+
+- Since an encoder in standard autoencoder learns to map each data point(x<sub>i</sub>) to its corresponding representation(z<sub>i</sub>) in latent space while a recognition model parametrized by &phi; parameters learns a conditional distribution over latent codes.
+
+- Henceforth one can easily observe that a **recognition model** is nothing but a **probabilistic encoder**.
+
+- In a similar way, we can also say the decoder as **probabilistic decoder** which learns the conditional distribution P(X\|Z).
+
+	![alt text](images/encoder.png)
 
 ## Intuition behind VAE
 

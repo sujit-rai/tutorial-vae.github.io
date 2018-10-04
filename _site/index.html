@@ -42,6 +42,7 @@
   <li>Basics of autoencoders</li>
   <li>Generative models</li>
   <li>Problem Setting</li>
+  <li>Connecting Neural Networks in Probability World</li>
   <li>Introduction to Variational autoencoder</li>
   <li>Maths behind Variational autoencoder</li>
   <li>Experiments
@@ -180,6 +181,39 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
         <p>Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.</p>
       </li>
     </ul>
+  </li>
+  <li>Now we are ready to define the problems which authors of <a href="https://arxiv.org/abs/1312.6114">VAE</a> try to solve :
+    <blockquote>
+      <p><strong>Maximum likelihood estimation for the parameters θ</strong>.<br />One can see their use as mimicing the hidden process to generate data similar to real data.</p>
+
+      <p><strong>Approximating posterior inference of latent variable z given a observable value x.</strong>
+Such inference can be used in representation learning tasks.</p>
+
+      <p><strong>Learning the marginal distribution over X.</strong><br />
+This is useful for the applications where marginals are required, for example denoising.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="connecting-neural-networks-in-probability-world">Connecting Neural Networks in Probability World</h2>
+
+<ul>
+  <li>
+    <p>Lets define an recognition model Q<sub>φ</sub>(z|x) which is an approximation to true posterior P<sub>θ</sub>(z|x).</p>
+  </li>
+  <li>
+    <p>From coding theory perspective one can look the latent dimension values(z<sub>i</sub>) as latent codes or representations which are corresponding to data instances(x<sub>i</sub>).</p>
+  </li>
+  <li>
+    <p>Since an encoder in standard autoencoder learns to map each data point(x<sub>i</sub>) to its corresponding representation(z<sub>i</sub>) in latent space while a recognition model parametrized by φ parameters learns a conditional distribution over latent codes.</p>
+  </li>
+  <li>
+    <p>Henceforth one can easily observe that a <strong>recognition model</strong> is nothing but a <strong>probabilistic encoder</strong>.</p>
+  </li>
+  <li>
+    <p>In a similar way, we can also say the decoder as <strong>probabilistic decoder</strong> which learns the conditional distribution P(X|Z).</p>
+
+    <p><img src="images/encoder.png" alt="alt text" /></p>
   </li>
 </ul>
 
