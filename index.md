@@ -124,7 +124,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - In a similar way, we can also say the decoder as **probabilistic decoder** which learns the conditional distribution P(X\|Z).
 
-	![alt text](images/encoder.png)
+![alt text](images/encoder.png)
 
 ## Intuition behind VAE
 
