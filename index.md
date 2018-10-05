@@ -126,6 +126,24 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 ![alt text](images/prob_encoder.png)
 
+## Introduction to Variational Autoencoder
+
+- Since decoder is a network which transforms a value z<sup>i</sup> in latent space to a value x<sup>i</sup> in input space, so the idea is to leverage the decoder in such a way that for every point in latent space it constructs something realistic in input space.
+
+- For analogy one can see a random value in latent space as **imagination** and we would like the decoder to turn this imagination into something **realistic** in input space.
+
+- In the variational autoencoder model, the encoder learns a conditional probability distribution i.e P(z\|x) while the decoder learns a deterministic function which maps a value in latent space to a value in input space.
+
+- Since we want to approximate intratctable true posterior distribution via the encoder's learnt distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it be a multivariate Gaussian Distribution.
+
+- As with multivariates the covariance matrix increases quadratically with dimesions we restrict the encoder distribution family to diagonal Gaussian distributions. 
+
+- One may ask but how we actually compute the mean & variance in latent space ?
+	> Instead of learning representation in latent space for a given data poin, we rather learn the mean & variance of the learnt distribution. 
+	-- ADD IMAGE HERE SHOWING MEAN AND VARIANCE LEARNING--
+
+- As the encoder & decoder networks in an autoencoder are deterministic but we want our **imagination** to be random values in latent space, so this randomness is achieved using **reparametrization trick**.(We will cover about reparametrization later in this blog.)
+
 ## Intuition behind VAE
 
 Before jumping to VAE, we would like to first connect the autoencoders with probabilistic graphical models. We can view the encoder as approximating conditional probability distribution -- p(z\|x) where z is denoting latent space random var & x is input data point. Similarly decoder can be viewed as approximating a conditional distribution -- q(x\|z). So we would like to use the decoder part as generative model since it learns to map a point in latent space to a point in input space. For a decoder to get trained we also want encoder(only for training) as it provides a meaning full point in latent space corresponding to an input. But issue is that both our encoders & decoders are deterministic functions but a generative model should be stochastic (Eg : stochasticity can be seen as generating images of 3 digit but in different orientations). So to make our traditional Autoencoders stochastic we make use of re-parametrization trick which serves as core of VAE learning.
