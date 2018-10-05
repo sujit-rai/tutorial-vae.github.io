@@ -66,7 +66,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 	>
 	> Henceforth we need not save the dataset once we learn a generative model on it. Mathematically we learn the marginal distribution on X.
 	>
-	> Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as representation learning is that if a model can produce instances similar to training data distribution then it must have learnt some useful properties about the training instances too).
+	> Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as representation learning is that if a model can produce instances similar to training data distribution then it must have learned some useful properties about the training instances too).
 	>
 	> For representation learning, any intermediate reprsentation of the generating model can be used. Empirically it has been observed that penultimate layer serves the purpose best.
 
@@ -77,7 +77,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 	>
 	> Therefore we would like to make use of inference models which actually tries to infer P(X) by observing X.
 
-<!--These type of machine learning models come with a goal to learn the true data distribution. Intuitive motivation is that if a model is able to generate plausible samples close to train data distribution then it must have learnt very well representations too. These are useful where data collection is hard or next to impossible, henceforth we could use generative models to generate samples in order to augment in existing dataset. -->
+<!--These type of machine learning models come with a goal to learn the true data distribution. Intuitive motivation is that if a model is able to generate plausible samples close to train data distribution then it must have learned very well representations too. These are useful where data collection is hard or next to impossible, henceforth we could use generative models to generate samples in order to augment in existing dataset. -->
 
 ## Problem Setting
 -
@@ -134,12 +134,12 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - In the variational autoencoder model, the encoder learns a conditional probability distribution i.e P(z\|x) while the decoder learns a deterministic function which maps a value in latent space to a value in input space.
 
-- Since we want to approximate intratctable true posterior distribution via the encoder's learnt distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it be a multivariate Gaussian Distribution.
+- Since we want to approximate intratctable true posterior distribution via the encoder's learned distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it be a multivariate Gaussian Distribution.
 
 - As with multivariates the covariance matrix increases quadratically with dimesions we restrict the encoder distribution family to diagonal Gaussian distributions. 
 
 - One may ask but how we actually compute the mean & variance in latent space ?
-	> Instead of learning representation in latent space for a given data poin, we rather learn the mean & variance of the learnt distribution. 
+	> Instead of learning representation in latent space for a given data poin, we rather learn the mean & variance of the learned distribution. 
 
 	
 ![alt text](images/encoder.png)
@@ -148,11 +148,31 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 ## Intuition behind VAE
 
-Before jumping to VAE, we would like to first connect the autoencoders with probabilistic graphical models. We can view the encoder as approximating conditional probability distribution -- p(z\|x) where z is denoting latent space random var & x is input data point. Similarly decoder can be viewed as approximating a conditional distribution -- q(x\|z). So we would like to use the decoder part as generative model since it learns to map a point in latent space to a point in input space. For a decoder to get trained we also want encoder(only for training) as it provides a meaning full point in latent space corresponding to an input. But issue is that both our encoders & decoders are deterministic functions but a generative model should be stochastic (Eg : stochasticity can be seen as generating images of 3 digit but in different orientations). So to make our traditional Autoencoders stochastic we make use of re-parametrization trick which serves as core of VAE learning.
+![alt text](images/intuition.png)
+
+- The conditional distribution (i.e P(Z\|X)) in blue color is the one which is **true intractable**(because we have assumed Z to be hidden in our problem setting) distribution where as the one in red color is our approximation to this intractable distribution.
+
+- Our approximation is parametrized by parameters &phi; of the variational encoder network.
+
+- Since we consider decoder as generating black box taking an input value in latent space and mapping it to some realistic value in input space. 
+
+- So one may ask how to choose random values in latent space ?
+	> Since there is decades of research available on sampling techniques so idea is to leverage the sampling from some probability distribution(say Q) as a way to generate random values in latent space.
+	>
+	> Now the values generated(in latent space) by sampling from some probability distribution should also follow the learned distribution by variational encoder else the decoder will not be able to reconstruct the images.
+	>
+	> Henceforth the learned encoder distribution should be close to the distribution(Q) from which we sample. 
+	>
+	> In VAE literature we often say Q as **prior distribution**. We term it prior because we model our belief in form of distribution followed by the latent space.
+	>
+	> KL diveregence is the metric used to compare two probability distributions and in VAE model we use this metric to compare the learned encoder distribution and prior distribution.
+
+
+<!--Before jumping to VAE, we would like to first connect the autoencoders with probabilistic graphical models. We can view the encoder as approximating conditional probability distribution -- p(z\|x) where z is denoting latent space random var & x is input data point. Similarly decoder can be viewed as approximating a conditional distribution -- q(x\|z). So we would like to use the decoder part as generative model since it learns to map a point in latent space to a point in input space. For a decoder to get trained we also want encoder(only for training) as it provides a meaning full point in latent space corresponding to an input. But issue is that both our encoders & decoders are deterministic functions but a generative model should be stochastic (Eg : stochasticity can be seen as generating images of 3 digit but in different orientations). So to make our traditional Autoencoders stochastic we make use of re-parametrization trick which serves as core of VAE learning. -->
 
 ## Maths behind VAE
 
-On observing final loss function we get two terms i.e KL term & likelihood term. KL term helps to restrict encoder’s learnt latent space distribution as close as possible to our prior. Likelihood term helps the decoder to reconstruct the images.
+On observing final loss function we get two terms i.e KL term & likelihood term. KL term helps to restrict encoder’s learned latent space distribution as close as possible to our prior. Likelihood term helps the decoder to reconstruct the images.
 
 ## Experiments
 
@@ -167,7 +187,7 @@ The main aim of performing experiments is to find some insights that would be he
 * Generation of blurry samples
 > One of the disadvantages of VAE is that it leads to the generation of blurry samples. we except to demonstrate that effect through this experiment.
 * Experiment fact on learning VAE
-> once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learnt distribution to match our prior, we get decoder very fast learnt and then KL term comes in picture.
+> once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.
 
 ## Applications of VAE
 
