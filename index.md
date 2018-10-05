@@ -140,7 +140,9 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - One may ask but how we actually compute the mean & variance in latent space ?
 	> Instead of learning representation in latent space for a given data poin, we rather learn the mean & variance of the learnt distribution. 
-	-- ADD IMAGE HERE SHOWING MEAN AND VARIANCE LEARNING--
+
+	
+![alt text](images/encoder.png)
 
 - As the encoder & decoder networks in an autoencoder are deterministic but we want our **imagination** to be random values in latent space, so this randomness is achieved using **reparametrization trick**.(We will cover about reparametrization later in this blog.)
 

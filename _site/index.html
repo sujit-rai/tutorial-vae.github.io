@@ -235,12 +235,17 @@ This is useful for the applications where marginals are required, for example de
   <li>
     <p>As with multivariates the covariance matrix increases quadratically with dimesions we restrict the encoder distribution family to diagonal Gaussian distributions.</p>
   </li>
-  <li>One may ask but how we actually compute the mean &amp; variance in latent space ?
+  <li>
+    <p>One may ask but how we actually compute the mean &amp; variance in latent space ?</p>
     <blockquote>
-      <p>Instead of learning representation in latent space for a given data poin, we rather learn the mean &amp; variance of the learnt distribution. 
-  – ADD IMAGE HERE SHOWING MEAN AND VARIANCE LEARNING–</p>
+      <p>Instead of learning representation in latent space for a given data poin, we rather learn the mean &amp; variance of the learnt distribution.</p>
     </blockquote>
   </li>
+</ul>
+
+<p><img src="images/encoder.png" alt="alt text" /></p>
+
+<ul>
   <li>As the encoder &amp; decoder networks in an autoencoder are deterministic but we want our <strong>imagination</strong> to be random values in latent space, so this randomness is achieved using <strong>reparametrization trick</strong>.(We will cover about reparametrization later in this blog.)</li>
 </ul>
 
