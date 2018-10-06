@@ -10,6 +10,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - Connecting Neural Networks in Probability World
 - Introduction to Variational autoencoder
 - Maths behind Variational autoencoder
+- [Code Snippet for VAE](/code)
 - Experiments 
   - Latent Space Visualizations
   - Visualization of cluster formation
