@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+
+    
+    <meta charset="UTF-8">
+
+<!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>VAE Tutorial | Sujit Rai, Prateek Munjal.</title>
+<meta name="generator" content="Jekyll v3.8.3" />
+<meta property="og:title" content="VAE Tutorial" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Sujit Rai, Prateek Munjal." />
+<meta property="og:description" content="Sujit Rai, Prateek Munjal." />
+<link rel="canonical" href="http://localhost:4000/code.html" />
+<meta property="og:url" content="http://localhost:4000/code.html" />
+<meta property="og:site_name" content="VAE Tutorial" />
+<script type="application/ld+json">
+{"description":"Sujit Rai, Prateek Munjal.","@type":"WebPage","url":"http://localhost:4000/code.html","headline":"VAE Tutorial","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+    <a id="skip-to-content" href="#content">Skip to the content.</a>
+
+    <header class="page-header" role="banner">
+      <h1 class="project-name">VAE Tutorial</h1>
+      <h2 class="project-tagline">Sujit Rai, Prateek Munjal.</h2>
+      
+      
+    </header>
+
+    <main id="content" class="main-content" role="main">
+      <!--Text can be **bold**, _italic_, or ~~strikethrough~~.
+
+[Link to another page](./another-page.html).
+
+There should be whitespace between paragraphs.
+
+There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
+
+# Header 1
+
+This is a normal paragraph following a header. GitHub is a code hosting platform for version control and collaboration. It lets you and others work together on projects from anywhere.
+
+## Header 2
+
+> This is a blockquote following a header.
+>
+> When something is important enough, you do it even if the odds are not in your favor.
+
+### Header 3
+-->
+
+<h2 id="code-snippets-to-reproduce-the-results-">Code Snippets to reproduce the results :)</h2>
+
+<h3 id="neccessary-imports">Neccessary Imports</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="n">tf</span> 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span> 
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+</code></pre></div></div>
+
+<h3 id="download-the-mnist-dataset">Download the MNIST dataset</h3>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets('/tmp/data',one_hot=True);
+</code></pre></div></div>
+
+<h3 id="hyper-parameters">Hyper-parameters</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#tuning_knobs</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">;</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+<span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span> 
+
+<span class="c">#model params</span>
+<span class="n">z_dim</span> <span class="o">=</span> <span class="mi">32</span><span class="p">;</span>
+
+<span class="n">tfd</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">distributions</span> <span class="c">#we will use this to calculate kl-divergence</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,[</span><span class="bp">None</span><span class="p">,</span><span class="mi">784</span><span class="p">]);</span>
+<span class="n">epoch_number</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,[]);</span>
+</code></pre></div></div>
+<h3 id="encoder-network">Encoder Network</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">encoder_dist</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">isTrainable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'encoder'</span><span class="p">):</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">AUTO_REUSE</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="n">outputs</span><span class="o">=</span><span class="p">{};</span>
+    <span class="n">conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span><span class="n">kernel_size</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="n">isTrainable</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv1_layer'</span><span class="p">);</span>
+    <span class="n">conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">batch_normalization</span><span class="p">(</span><span class="n">conv1</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv1_layer_batchnorm'</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="n">isTrainable</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">);</span>
+    <span class="n">conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">conv1</span><span class="p">,</span><span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv1_layer_maxpool'</span><span class="p">);</span>
+    
+    <span class="n">outputs</span><span class="p">[</span><span class="s">'conv1'</span><span class="p">]</span> <span class="o">=</span> <span class="n">conv1</span><span class="p">;</span>
+    
+    <span class="n">conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">conv1</span><span class="p">,</span><span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">kernel_size</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="n">isTrainable</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv2_layer'</span><span class="p">);</span>
+    <span class="n">conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">batch_normalization</span><span class="p">(</span><span class="n">conv2</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv2_layer_batchnorm'</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="n">isTrainable</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">);</span>
+    <span class="n">conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">conv2</span><span class="p">,</span><span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv2_layer_maxpool'</span><span class="p">);</span>
+    
+    <span class="n">outputs</span><span class="p">[</span><span class="s">'conv2'</span><span class="p">]</span> <span class="o">=</span> <span class="n">conv2</span><span class="p">;</span>
+
+    <span class="n">conv3</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">conv2</span><span class="p">,</span><span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">kernel_size</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="n">isTrainable</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv3_layer'</span><span class="p">);</span>
+    <span class="n">conv3</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">batch_normalization</span><span class="p">(</span><span class="n">conv3</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv3_layer_batchnorm'</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="n">isTrainable</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">);</span>
+    <span class="n">conv3</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">conv3</span><span class="p">,</span><span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'conv3_layer_maxpool'</span><span class="p">);</span>
+    
+    <span class="n">outputs</span><span class="p">[</span><span class="s">'conv3'</span><span class="p">]</span> <span class="o">=</span> <span class="n">conv3</span><span class="p">;</span>
+    <span class="n">conv3_flt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">conv3</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'flattened_conv3'</span><span class="p">);</span>
+  
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'VAE_mean_and_var_'</span><span class="o">+</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+
+    <span class="n">mean_fc</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dense</span><span class="p">(</span><span class="n">conv3_flt</span><span class="p">,</span><span class="n">z_dim</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">tanh</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'mean_fully_connected'</span><span class="p">);</span>
+    <span class="n">var_fc</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dense</span><span class="p">(</span><span class="n">conv3_flt</span><span class="p">,</span><span class="n">z_dim</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softplus</span><span class="p">,</span><span class="n">trainable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">reuse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">'var_fully_connected'</span><span class="p">);</span>
+    
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">MultivariateNormalDiag</span><span class="p">(</span><span class="n">mean_fc</span><span class="p">,</span><span class="n">var_fc</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">dist</span><span class="p">,</span><span class="n">outputs</span><span class="p">;</span>
+
+</code></pre></div></div>
+<h3 id="sampling-from-learned-posterior-distribution-to-get-a-value-zi-in-latent-space">Sampling from learned posterior distribution to get a value z<sup>i</sup> in latent space.</h3>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>posterior_dist,encoder_outputs = encoder_dist(X,isTrainable=False);
+epsilon_value = tfd.MultivariateNormalDiag(tf.zeros(z_dim),tf.ones(z_dim)).sample(tf.shape(X)[0]);
+z_sample = tf.add(posterior_dist.mean(),tf.multiply(posterior_dist.stddev(),epsilon_value)); # z_sample = mu + sigma*epsilon;
+</code></pre></div></div>
+
+<h3 id="decoder-network">Decoder Network</h3>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def decoder(Z,isTrainable=True,reuse=False,name='decoder'):
+  with tf.variable_scope(name) as scope:
+    Z = tf.layers.dense(Z,4*4*32,activation=tf.nn.tanh,trainable=isTrainable,reuse=reuse,name='fully_connected_decoder_from_z_dim');
+    outputs={};
+    Z = tf.reshape(Z,[-1,4,4,32]);
+    
+    deconv1 = tf.image.resize_images(Z,size=[7,7],align_corners=False);
+    deconv1 = tf.layers.conv2d_transpose(deconv1,filters=32,kernel_size=[3,3],strides=(1,1),padding='SAME',activation=tf.nn.leaky_relu,trainable=isTrainable,reuse=reuse,name='deconv1_layer');
+    deconv1 = tf.layers.batch_normalization(deconv1,name='deconv1_layer_batchnorm',trainable=isTrainable,reuse=reuse);
+    outputs['deconv1'] = deconv1;
+    
+    deconv2 = tf.image.resize_images(deconv1,size=[14,14],align_corners=False);
+    deconv2 = tf.layers.conv2d_transpose(deconv2,filters=16,kernel_size=[3,3],strides=(1,1),padding='SAME',activation=tf.nn.leaky_relu,trainable=isTrainable,reuse=reuse,name='deconv2_layer');
+    deconv2 = tf.layers.batch_normalization(deconv2,name='deconv2_layer_batchnorm',trainable=isTrainable,reuse=reuse);
+    outputs['deconv2'] = deconv2;
+    
+    deconv3 = tf.image.resize_images(deconv2,size=[28,28],align_corners=False);
+    deconv3 = tf.layers.conv2d_transpose(deconv3,filters=1,kernel_size=[3,3],strides=(1,1),padding='SAME',activation=tf.nn.leaky_relu,trainable=isTrainable,reuse=reuse,name='deconv3_layer');
+    outputs['deconv3'] = deconv3;
+    deconv3_reshaped = tf.reshape(deconv3,[-1,784]);
+    return deconv3_reshaped,outputs;
+</code></pre></div></div>
+<h3 id="calculating-reconstruction-loss">Calculating Reconstruction Loss</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reconstruction</span><span class="p">,</span><span class="n">decoder_outputs</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z_sample</span><span class="p">);</span>
+<span class="n">reconstruction_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="nb">pow</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">reconstruction</span><span class="p">,</span><span class="mi">2</span><span class="p">));</span>
+</code></pre></div></div>
+<h3 id="evaluating-kl-divergence-between-posterior-distribution-and-prior-distribution">Evaluating KL-divergence between posterior distribution and prior distribution</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">prior_dist</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">MultivariateNormalDiag</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">z_dim</span><span class="p">),</span><span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">z_dim</span><span class="p">));</span>
+<span class="n">KL_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tfd</span><span class="o">.</span><span class="n">kl_divergence</span><span class="p">(</span><span class="n">posterior_dist</span><span class="p">,</span><span class="n">prior_dist</span><span class="p">));</span>
+</code></pre></div></div>
+
+<h3 id="loss-function">Loss function</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">kl_weight</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">epoch_number</span><span class="o">/</span><span class="mi">3</span><span class="o">+</span><span class="mi">4</span><span class="p">));</span>
+<span class="n">kl_weight</span> <span class="o">*=</span> <span class="mf">0.001</span><span class="p">;</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">kl_weight</span><span class="o">*</span><span class="n">KL_loss</span> <span class="o">+</span> <span class="n">reconstruction_loss</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="update-parameters">Update Parameters</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">enc_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">TRAINABLE_VARIABLES</span><span class="p">,</span><span class="n">scope</span><span class="o">=</span><span class="s">'encoder'</span><span class="p">);</span>
+<span class="n">VAE_mean_and_var_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">TRAINABLE_VARIABLES</span><span class="p">,</span><span class="n">scope</span><span class="o">=</span><span class="s">'VAE_mean_and_var_'</span><span class="o">+</span><span class="s">'encoder'</span><span class="p">);</span>
+<span class="n">dec_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">TRAINABLE_VARIABLES</span><span class="p">,</span><span class="n">scope</span><span class="o">=</span><span class="s">'decoder'</span><span class="p">);</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">(</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span><span class="p">);</span>
+
+<span class="n">update_ops</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">UPDATE_OPS</span><span class="p">);</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">update_ops</span><span class="p">):</span>
+  <span class="n">gradsVars</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">compute_gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">());</span>
+  <span class="n">train_optimizer</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">gradsVars</span><span class="p">);</span>
+
+<span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s">"reconstruction_loss"</span><span class="p">,</span><span class="n">reconstruction_loss</span><span class="p">);</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s">"KL_loss"</span><span class="p">,</span><span class="n">KL_loss</span><span class="p">);</span>
+
+<span class="n">merged_all</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">merge_all</span><span class="p">();</span> <span class="c">#used for tensorboard visualization -- effective for analyzing learning of model</span>
+</code></pre></div></div>
+
+<h3 id="lets-train-the-network-">Lets Train the Network !!</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">train_model</span><span class="p">():</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">());</span>
+
+    <span class="n">n_batches</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">num_examples</span><span class="o">/</span><span class="n">batch_size</span><span class="p">;</span>
+    <span class="n">n_batches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_batches</span><span class="p">);</span>
+
+    <span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">();</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">GLOBAL_VARIABLES</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="s">'encoder'</span><span class="p">);</span>
+    <span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">(</span><span class="n">var_list</span><span class="o">=</span><span class="n">params</span><span class="p">);</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'----------------PARAMS-----------------'</span><span class="p">);</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">print</span> <span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---------------------------------'</span><span class="p">);</span>
+
+    <span class="n">string</span> <span class="o">=</span> <span class="n">save_model_directory</span><span class="o">+</span><span class="s">'/model_'</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="mi">98</span><span class="p">);</span> 
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">string</span><span class="p">);</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Previous weights not found of encoder"</span><span class="p">);</span> 
+        <span class="n">sys</span><span class="o">.</span><span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'---------------------------------'</span><span class="p">);</span>
+    <span class="k">print</span> <span class="p">(</span><span class="s">"Model loaded"</span><span class="p">);</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---------------------------------'</span><span class="p">);</span>
+    <span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">();</span>
+    
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">FileWriter</span><span class="p">(</span><span class="n">log_directory</span><span class="p">,</span><span class="n">sess</span><span class="o">.</span><span class="n">graph</span><span class="p">);</span>
+    
+    <span class="n">train_list</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">();</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'----------------TRAINABLE_VARIABLES----------------'</span><span class="p">);</span>
+    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">train_list</span><span class="p">:</span>
+      <span class="k">print</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'---------------------------------------------------'</span><span class="p">);</span>
+    
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+      <span class="n">epoch_loss</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">epoch_KL_loss</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">epoch_reconstruction_loss</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batches</span><span class="p">):</span>
+        <span class="n">X_batch</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+        <span class="n">_</span><span class="p">,</span><span class="n">batch_cost</span><span class="p">,</span><span class="n">merged</span><span class="p">,</span><span class="n">batch_KL_loss</span><span class="p">,</span><span class="n">batch_reconstruction_loss</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">train_optimizer</span><span class="p">,</span><span class="n">loss</span><span class="p">,</span><span class="n">merged_all</span><span class="p">,</span><span class="n">KL_loss</span><span class="p">,</span><span class="n">reconstruction_loss</span><span class="p">],</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">X</span><span class="p">:</span><span class="n">X_batch</span><span class="p">,</span><span class="n">epoch_number</span><span class="p">:</span><span class="n">epoch</span><span class="p">});</span>
+        <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">batch_cost</span><span class="p">;</span>
+        <span class="n">epoch_KL_loss</span> <span class="o">+=</span> <span class="n">batch_KL_loss</span><span class="p">;</span>
+        <span class="n">epoch_reconstruction_loss</span> <span class="o">+=</span> <span class="n">batch_reconstruction_loss</span><span class="p">;</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_summary</span><span class="p">(</span><span class="n">merged</span><span class="p">,</span><span class="n">epoch</span><span class="o">*</span><span class="n">n_batches</span><span class="o">+</span><span class="n">batch</span><span class="p">);</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">'At epoch #'</span><span class="p">,</span><span class="n">epoch</span><span class="p">,</span><span class="s">' loss is '</span><span class="p">,</span><span class="n">epoch_loss</span> <span class="p">,</span><span class="s">' where recons loss : '</span><span class="p">,</span><span class="n">epoch_reconstruction_loss</span><span class="p">,</span><span class="s">' and KL_loss : '</span><span class="p">,</span><span class="n">epoch_KL_loss</span><span class="p">);</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">epoch</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">model_directory</span><span class="o">+</span><span class="s">'/model_'</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">));</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"At epoch #"</span><span class="p">,</span><span class="n">epoch</span><span class="p">,</span><span class="s">" Model is saved at path: "</span><span class="p">,</span><span class="n">save_path</span><span class="p">);</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Optimization Done !!'</span><span class="p">);</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    
+    <span class="n">reconstructed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">28</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="mi">28</span><span class="o">*</span><span class="n">n</span><span class="p">));</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">28</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="mi">28</span><span class="o">*</span><span class="n">n</span><span class="p">));</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+      
+      <span class="n">batch_X</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+      <span class="n">recons</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">reconstruction</span><span class="p">,</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">X</span><span class="p">:</span><span class="n">batch_X</span><span class="p">});</span>
+      <span class="k">print</span> <span class="p">(</span><span class="s">'recons : '</span><span class="p">,</span><span class="n">recons</span><span class="o">.</span><span class="n">shape</span><span class="p">);</span>
+      <span class="n">recons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">recons</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">784</span><span class="p">]);</span>
+      <span class="k">print</span> <span class="p">(</span><span class="s">'recons : '</span><span class="p">,</span><span class="n">recons</span><span class="o">.</span><span class="n">shape</span><span class="p">);</span>
+
+      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+              <span class="n">original</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">28</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">28</span><span class="p">,</span> <span class="n">j</span> <span class="o">*</span> <span class="mi">28</span><span class="p">:(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">28</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_X</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">]);</span>
+
+      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">reconstructed</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">28</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">28</span><span class="p">,</span> <span class="n">j</span> <span class="o">*</span> <span class="mi">28</span><span class="p">:(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">28</span><span class="p">]</span> <span class="o">=</span> <span class="n">recons</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">]);</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"Original Images"</span><span class="p">);</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">));</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s">"upper"</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">"gray"</span><span class="p">);</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'original_new_vae.png'</span><span class="p">);</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"Reconstructed Images"</span><span class="p">);</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">));</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">reconstructed</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s">"upper"</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">"gray"</span><span class="p">);</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'reconstructed_new_vae.png'</span><span class="p">);</span>
+    
+</code></pre></div></div>
+
+<!--
+```ruby
+# Ruby code with syntax highlighting
+GitHubPages::Dependencies.gems.each do |gem, version|
+  s.add_dependency(gem, "= #{version}")
+end
+```
+
+#### Header 4
+
+*   This is an unordered list following a header.
+*   This is an unordered list following a header.
+*   This is an unordered list following a header.
+
+##### Header 5
+
+1.  This is an ordered list following a header.
+2.  This is an ordered list following a header.
+3.  This is an ordered list following a header.
+
+###### Header 6
+
+| head1        | head two          | three |
+|:-------------|:------------------|:------|
+| ok           | good swedish fish | nice  |
+| out of stock | good and plenty   | nice  |
+| ok           | good `oreos`      | hmm   |
+| ok           | good `zoute` drop | yumm  |
+
+### There's a horizontal rule below this.
+
+* * *
+
+### Here is an unordered list:
+
+*   Item foo
+*   Item bar
+*   Item baz
+*   Item zip
+
+### And an ordered list:
+
+1.  Item one
+1.  Item two
+1.  Item three
+1.  Item four
+
+### And a nested list:
+
+- level 1 item
+  - level 2 item
+  - level 2 item
+    - level 3 item
+    - level 3 item
+- level 1 item
+  - level 2 item
+  - level 2 item
+  - level 2 item
+- level 1 item
+  - level 2 item
+  - level 2 item
+- level 1 item
+
+### Small image
+
+![Octocat](https://assets-cdn.github.com/images/icons/emoji/octocat.png)
+
+### Large image
+
+![Branching](https://guides.github.com/activities/hello-world/branching.png)
+
+
+### Definition lists can be used with HTML syntax.
+
+<dl>
+<dt>Name</dt>
+<dd>Godzilla</dd>
+<dt>Born</dt>
+<dd>1952</dd>
+<dt>Birthplace</dt>
+<dd>Japan</dd>
+<dt>Color</dt>
+<dd>Green</dd>
+</dl>
+
+
+
+```
+Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
+```
+
+```
+The final element.
+```
+-->
+
+
+      <footer class="site-footer">
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+      </footer>
+    </main>
+  </body>
+</html>
