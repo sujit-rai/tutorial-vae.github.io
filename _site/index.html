@@ -303,17 +303,51 @@ This is useful for the applications where marginals are required, for example de
       <p>T-SNE visualization of the representation of latent space in Normal AutoEncoder and Variational AutoEncoder will be compared in order to understand the difference in the cluster formation and the reason behind it.</p>
     </blockquote>
   </li>
-  <li>Generation of blurry samples
-    <blockquote>
-      <p>One of the disadvantages of VAE is that it leads to the generation of blurry samples. we except to demonstrate that effect through this experiment.</p>
-    </blockquote>
-  </li>
-  <li>Experiment fact on learning VAE
-    <blockquote>
-      <p>once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.</p>
-    </blockquote>
-  </li>
+  <li>Reconstruction Images</li>
 </ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Original Image</th>
+      <th style="text-align: center">Reconstructed Image</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="images/original_new_vae.png" alt="alt text" /></td>
+      <td style="text-align: center"><img src="images/reconstructed_new_vae.png" alt="alt text" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>Generation of blurry samples</li>
+</ul>
+
+<p><img src="images/gen-img.png" alt="alt text" /></p>
+
+<blockquote>
+  <p>One of the disadvantages of VAE is that it leads to the generation of blurry samples. we except to demonstrate that effect through this experiment.</p>
+</blockquote>
+
+<ul>
+  <li>Interpolation in latent space</li>
+</ul>
+
+<p><img src="images/interpolation-img.png" alt="alt text" /></p>
+
+<ul>
+  <li>Experiment fact on learning VAE</li>
+</ul>
+
+<p><img src="images/kl_loss.png" alt="alt text" /></p>
+
+<p><img src="images/reconstruction_loss.png" alt="alt text" /></p>
+
+<blockquote>
+  <p>once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.</p>
+</blockquote>
 
 <h2 id="applications-of-vae">Applications of VAE</h2>
 

@@ -185,9 +185,29 @@ The main aim of performing experiments is to find some insights that would be he
 > Visualizing the effect of KL Divergence on the latent space representations. T-SNE will used in order to obtain the visualization of the representation obtained by using KL Divergence and without using KL Divergence. Both the visualizations will be compared in-order to obtain useful statistics and analysis
 * Visualization of the cluster formation 
 > T-SNE visualization of the representation of latent space in Normal AutoEncoder and Variational AutoEncoder will be compared in order to understand the difference in the cluster formation and the reason behind it.
+
+* Reconstruction Images
+
+Original Image             |  Reconstructed Image
+:-------------------------:|:-------------------------:
+![alt text](images/original_new_vae.png)  |  ![alt text](images/reconstructed_new_vae.png)
+
 * Generation of blurry samples
+
+![alt text](images/gen-img.png)
+
 > One of the disadvantages of VAE is that it leads to the generation of blurry samples. we except to demonstrate that effect through this experiment.
+
+* Interpolation in latent space
+
+![alt text](images/interpolation-img.png)
+
 * Experiment fact on learning VAE
+
+![alt text](images/kl_loss.png)
+
+![alt text](images/reconstruction_loss.png)
+
 > once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.
 
 ## Applications of VAE
