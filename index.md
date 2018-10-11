@@ -173,7 +173,83 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 ## Maths behind VAE
 
-On observing final loss function we get two terms i.e KL term & likelihood term. KL term helps to restrict encoder’s learned latent space distribution as close as possible to our prior. Likelihood term helps the decoder to reconstruct the images.
+Let's start with the concept of information. Information carried by a sentence or a statement can be quantified by $$ I = -log(P(x)) $$, where $$x$$ is certain event and $$I$$ is information. Since, value of probability is between 0 and 1. Therefore, if the value of $$P(x)$$ is close to 1 then information is close to 0 and if value of $$P(x)$$ is close to 0 then information gain is very high. Therefore, an unlikely event has very high information and a likely event has very low information.
+
+The average of information is known as entropy. Entropy can be calculated as $$H = -\sum P(x)*log(P(x))$$, which is just the expectation of information $$I$$. 
+
+Assuming there are two different distributions $$P$$ and $$Q$$. Then KL Divergence is the measure of dissimilarity between $$P$$ and $$Q$$. KL-Divergence is a concept which is closely related to Information and Entropy. KL-Divergence between $$P$$ and $$Q$$ is almost equal to Difference in entropy of $$P$$ and $$Q$$. Therefore, $$KL(P\|Q) \sim -\sum Q(x)*log(Q(x)) + \sum P(x)*log(P(x))$$ i.e. Difference in information obtained from distribution P and Q. Therefore, if both distributions are similar then entropy is minimum. However, KL-Divergence is calculated with respect to one distribution. Therefore, KL-Divergence of Q with respect to P can be calculated as $$KL(P\|Q) = -\sum P(x)*log(Q(x)) + \sum P(x)*log(P(x))$$. Therefore, here average information of Q is calculated with repsect to P.
+The two important properties of KL-Divergence are as follows 
+* KL-Divergence is always greater than equal to 0
+* KL-Divergence is not symmetric i.e. $$KL(P\|Q) \ne KL(Q\|P)$$
+
+Therefore, KL-Divergence is not distance measure because distance should be symmetric. KL-Divergence is a measure of dissimilarity between two distributions.
+
+Since, Variational technique is a technique in inference in graphical model so, let start with graphical models. Suppose, we have $$z$$ which is a hidden variable and $$x$$ is an observation. We would like to compute posterior $$P(z \vert x)$$.
+
+$$P(z \vert x) = \frac{P(x \vert z) * P(z)}{P(x)} = \frac{P(x,z)}{P(x)} $$
+
+Computing the marginal distribution $$P(x)$$ is quite complicated. Because $$P(x) = \int P(x \vert z)*p(z) dz$$ and this integral is intractable especially in high dimensional space. Therefore computing the marginal is one of obstacle in graphical models. Roughly there are two main approaches for calculating this integral. 1.) Monte Carlo approach (compute the integral by monte carlo integral using sampling), 2.) Variational Inference. We will use variational Inference.
+
+Since, computing $$P(z \vert x)$$ is not possible therefore, approximate $$P(z \vert x)$$ with another distribution $$Q(z)$$. If $$Q$$ is choosen to be a tractable distribution and if this tractable distribution is made close to the distribution of $$P(z \vert x)$$ then the problem is solved.
+
+Now, Since the problem is to make $$Q(z)$$ as close as possible to $$P(z \vert x)$$. Therefore, now KL-Divergence can be used as a dissimilarity metric. If we can minimize the KL-Divergence between $$P$$ and $$Q$$ then we have obtained a tractable distribution $$Q$$ which is similar to $$P$$.
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* log\bigg(\frac{P(z \vert x)}{Q(z)}\bigg) $$
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* log\bigg(\frac{P(x,z)}{P(x)*Q(z)}\bigg) $$
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* log\bigg(\frac{P(x,z)}{Q(z)} * \frac{1}{P(x)}\bigg) $$
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* \bigg[log\bigg(\frac{P(x,z)}{Q(z)}\bigg) - log(P(x))\bigg] $$
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) + \sum_z Q(z)*log(P(x)) $$
+
+Since summation is over z. Therefore, $$log(P(x))$$ can be taken outside of summation.
+
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) + log(P(x)) \sum_z Q(z) $$
+
+Since, $$\sum_z Q(z) = 1$$. Therefore,
+
+$$ KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) + log(P(x)) $$
+
+$$ log(P(x)) = KL(Q(z) \| P(z \vert x)) + \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) $$
+
+
+Given a fixed $$x$$, $$log(P(x))$$ is constant and it is independent of the distribution of $$Q$$.
+
+Lets Denote $$ log(P(x)) $$ term as $$C$$, $$KL(Q(z) \| P(z \vert x))$$ term as $$K$$ and $$ \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) $$ term as $$L$$.
+
+ Now, we want to minimize $$K$$. As can be seen from equation above, $$K + L$$ is equal to a constant. Therefore, instead of minimizing $$K$$ we can maximize $$L$$. This $$L$$ term is known as Variational Lower Bound. since $$ K \ge 0$$ and $$C = K + L$$. Therefore, $$L \le C$$. Hence $$L$$ is lower bound of $$log(P(x))$$. In variational inference, Variational lower bound is maximized. 
+
+$$ L = \sum Q(z) * log\bigg( \frac{P(x,z)}{Q(z)} \bigg) $$
+
+$$ L = \sum Q(z) * log\bigg( \frac{P(x \vert z)*P(z)}{Q(z)} \bigg) $$
+
+$$ L = \sum Q(z) * \bigg[log(P(x \vert z)) + log\bigg(\frac{P(z)}{Q(z)}\bigg)\bigg] $$
+
+$$ L = \sum Q(z) * log(P(x \vert z)) + \sum Q(z)*log\bigg(\frac{P(z)}{Q(z)}\bigg) $$
+
+$$ L = \bigg(\sum Q(z) * log(P(x \vert z))\bigg) - KL(Q(z) \| P(z)) $$
+
+Here, $$\sum Q(z) * log(P(x \vert z))$$ is the likelihood of observing x given hidden variable z and $$KL(Q(z) \| P(z))$$ is the KL-Divergence between distributions $$P$$ and $$Q$$.
+Therefore, Inorder to maximize the variational lower bound $$L$$, we would like to minimize the KL-Divergence and maximize the Likelihood.
+
+![alt text](images/img1.png)
+
+Consider above graphical model with $$z$$ as the hidden variable and $$x$$ as the observation. $$P(x \vert z)$$ is the mapping from hidden variable to $$x$$. Assume there exists another distribution $$Q(z \vert x)$$ which maps $$x$$ to $$z$$. since, $$P(z \vert x)$$ is hard to compute. Therefore, we want to find another distribution $$Q(z \vert x)$$ which is tractable and similar to $$P(z \vert x)$$. 
+
+![alt text](images/img2.png)
+
+Let's assume $$Q(z \vert x)$$ is a function is obtained from a neural network which takes input $$x$$ and maps it to $$z$$. Lets assume that $$P(x \vert z)$$ is another neural network which takes this $$z$$ and maps it to $$x$$. We will assume that $$z$$ follows a gaussian distribution.
+
+$$ L = \bigg(\sum Q(z) * log(P(x \vert z))\bigg) - KL(Q(z) \| P(z)) $$
+
+From the equation above we would like to maximize the L term i.e. Minimize the KL-Divergence by bringing $$Q(z \vert x)$$ closer to a gaussian distribution. From $$z$$ to $$x'$$ there is a neural network in form of a decoder. This neural network is completely deterministic not probabilistic. Since there is a deterministic function between $$z$$ and $$x'$$. Therefore, $$P(z \vert x)$$ can be written as $$P(x \vert x')$$. Now, assume that the distribution $$P(x \vert x')$$ follows a gaussian distribution, then there is term of the form $$e^{-\vert x - x' \vert ^2}$$. and now if we take apply on this term then it becomes of the form $$\vert x - x' \vert ^ 2$$. This term is similar to the reconstruction error or L2 loss. Similarly, if we assume that distribution of $$P(x \vert x')$$ is bernoulli then the after applying log it becomes similar to cross entropy loss.
+
+Now, we have a autoencoder available with cost as $$\vert x - x' \vert ^ 2 $$ and a KL-Divergence between $$Q(z \vert x)$$ and a known distribution for example gaussian.
+
+Assuming that the distribution of the $$z$$ is normal. Therefore, the network can't be trained if it produces the latent code $$z$$ directly by sampling because then the gradients won't be obtained. We would therefore like our model to produce the parameters of the normal distribution instead of the code. This parameters can then be used for obtaining the latent code. The network is therefore now supposed to produce two parameters $$\mu$$ and $$\sigma$$. $$\mu$$ is $$d$$-dimensional vector whereas usually $$\sigma$$ is $$d \times d$$-dimensional matrix. For simplicity we would assume $$\sigma$$ to be diagonal i.e. a d-dimensional vector. Therefore, the network is now trained to generate mean and variance which are $$d$$-dimensional. This mean and variance are then used to sample a code from normal distribution. The sample procedure is done a obtaining a d-dimensional random vector $$n$$ and then mulitiplying it with variance and then adding the result to mean i.e. $$ z = \mu + (\sigma * n)$$. Thus this will lead to constraining the network to store the information in the latent code as efficiently as possible.
 
 ## Experiments
 

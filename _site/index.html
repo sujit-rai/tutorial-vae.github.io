@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-US">
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   <head>
 
     
@@ -284,7 +285,83 @@ This is useful for the applications where marginals are required, for example de
 
 <h2 id="maths-behind-vae">Maths behind VAE</h2>
 
-<p>On observing final loss function we get two terms i.e KL term &amp; likelihood term. KL term helps to restrict encoder’s learned latent space distribution as close as possible to our prior. Likelihood term helps the decoder to reconstruct the images.</p>
+<p>Let’s start with the concept of information. Information carried by a sentence or a statement can be quantified by <script type="math/tex">I = -log(P(x))</script>, where <script type="math/tex">x</script> is certain event and <script type="math/tex">I</script> is information. Since, value of probability is between 0 and 1. Therefore, if the value of <script type="math/tex">P(x)</script> is close to 1 then information is close to 0 and if value of <script type="math/tex">P(x)</script> is close to 0 then information gain is very high. Therefore, an unlikely event has very high information and a likely event has very low information.</p>
+
+<p>The average of information is known as entropy. Entropy can be calculated as <script type="math/tex">H = -\sum P(x)*log(P(x))</script>, which is just the expectation of information <script type="math/tex">I</script>.</p>
+
+<p>Assuming there are two different distributions <script type="math/tex">P</script> and <script type="math/tex">Q</script>. Then KL Divergence is the measure of dissimilarity between <script type="math/tex">P</script> and <script type="math/tex">Q</script>. KL-Divergence is a concept which is closely related to Information and Entropy. KL-Divergence between <script type="math/tex">P</script> and <script type="math/tex">Q</script> is almost equal to Difference in entropy of <script type="math/tex">P</script> and <script type="math/tex">Q</script>. Therefore, <script type="math/tex">KL(P\|Q) \sim -\sum Q(x)*log(Q(x)) + \sum P(x)*log(P(x))</script> i.e. Difference in information obtained from distribution P and Q. Therefore, if both distributions are similar then entropy is minimum. However, KL-Divergence is calculated with respect to one distribution. Therefore, KL-Divergence of Q with respect to P can be calculated as <script type="math/tex">KL(P\|Q) = -\sum P(x)*log(Q(x)) + \sum P(x)*log(P(x))</script>. Therefore, here average information of Q is calculated with repsect to P.
+The two important properties of KL-Divergence are as follows</p>
+<ul>
+  <li>KL-Divergence is always greater than equal to 0</li>
+  <li>KL-Divergence is not symmetric i.e. <script type="math/tex">KL(P\|Q) \ne KL(Q\|P)</script></li>
+</ul>
+
+<p>Therefore, KL-Divergence is not distance measure because distance should be symmetric. KL-Divergence is a measure of dissimilarity between two distributions.</p>
+
+<p>Since, Variational technique is a technique in inference in graphical model so, let start with graphical models. Suppose, we have <script type="math/tex">z</script> which is a hidden variable and <script type="math/tex">x</script> is an observation. We would like to compute posterior <script type="math/tex">P(z \vert x)</script>.</p>
+
+<script type="math/tex; mode=display">P(z \vert x) = \frac{P(x \vert z) * P(z)}{P(x)} = \frac{P(x,z)}{P(x)}</script>
+
+<p>Computing the marginal distribution <script type="math/tex">P(x)</script> is quite complicated. Because <script type="math/tex">P(x) = \int P(x \vert z)*p(z) dz</script> and this integral is intractable especially in high dimensional space. Therefore computing the marginal is one of obstacle in graphical models. Roughly there are two main approaches for calculating this integral. 1.) Monte Carlo approach (compute the integral by monte carlo integral using sampling), 2.) Variational Inference. We will use variational Inference.</p>
+
+<p>Since, computing <script type="math/tex">P(z \vert x)</script> is not possible therefore, approximate <script type="math/tex">P(z \vert x)</script> with another distribution <script type="math/tex">Q(z)</script>. If <script type="math/tex">Q</script> is choosen to be a tractable distribution and if this tractable distribution is made close to the distribution of <script type="math/tex">P(z \vert x)</script> then the problem is solved.</p>
+
+<p>Now, Since the problem is to make <script type="math/tex">Q(z)</script> as close as possible to <script type="math/tex">P(z \vert x)</script>. Therefore, now KL-Divergence can be used as a dissimilarity metric. If we can minimize the KL-Divergence between <script type="math/tex">P</script> and <script type="math/tex">Q</script> then we have obtained a tractable distribution <script type="math/tex">Q</script> which is similar to <script type="math/tex">P</script>.</p>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* log\bigg(\frac{P(z \vert x)}{Q(z)}\bigg)</script>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* log\bigg(\frac{P(x,z)}{P(x)*Q(z)}\bigg)</script>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* log\bigg(\frac{P(x,z)}{Q(z)} * \frac{1}{P(x)}\bigg)</script>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)* \bigg[log\bigg(\frac{P(x,z)}{Q(z)}\bigg) - log(P(x))\bigg]</script>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) + \sum_z Q(z)*log(P(x))</script>
+
+<p>Since summation is over z. Therefore, <script type="math/tex">log(P(x))</script> can be taken outside of summation.</p>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) + log(P(x)) \sum_z Q(z)</script>
+
+<p>Since, <script type="math/tex">\sum_z Q(z) = 1</script>. Therefore,</p>
+
+<script type="math/tex; mode=display">KL( Q(z) \| P(z \vert x)) = - \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg) + log(P(x))</script>
+
+<script type="math/tex; mode=display">log(P(x)) = KL(Q(z) \| P(z \vert x)) + \sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg)</script>
+
+<p>Given a fixed <script type="math/tex">x</script>, <script type="math/tex">log(P(x))</script> is constant and it is independent of the distribution of <script type="math/tex">Q</script>.</p>
+
+<p>Lets Denote <script type="math/tex">log(P(x))</script> term as <script type="math/tex">C</script>, <script type="math/tex">KL(Q(z) \| P(z \vert x))</script> term as <script type="math/tex">K</script> and <script type="math/tex">\sum_z Q(z)*log\bigg(\frac{P(x,z)}{Q(z)}\bigg)</script> term as <script type="math/tex">L</script>.</p>
+
+<p>Now, we want to minimize <script type="math/tex">K</script>. As can be seen from equation above, <script type="math/tex">K + L</script> is equal to a constant. Therefore, instead of minimizing <script type="math/tex">K</script> we can maximize <script type="math/tex">L</script>. This <script type="math/tex">L</script> term is known as Variational Lower Bound. since <script type="math/tex">K \ge 0</script> and <script type="math/tex">C = K + L</script>. Therefore, <script type="math/tex">L \le C</script>. Hence <script type="math/tex">L</script> is lower bound of <script type="math/tex">log(P(x))</script>. In variational inference, Variational lower bound is maximized.</p>
+
+<script type="math/tex; mode=display">L = \sum Q(z) * log\bigg( \frac{P(x,z)}{Q(z)} \bigg)</script>
+
+<script type="math/tex; mode=display">L = \sum Q(z) * log\bigg( \frac{P(x \vert z)*P(z)}{Q(z)} \bigg)</script>
+
+<script type="math/tex; mode=display">L = \sum Q(z) * \bigg[log(P(x \vert z)) + log\bigg(\frac{P(z)}{Q(z)}\bigg)\bigg]</script>
+
+<script type="math/tex; mode=display">L = \sum Q(z) * log(P(x \vert z)) + \sum Q(z)*log\bigg(\frac{P(z)}{Q(z)}\bigg)</script>
+
+<script type="math/tex; mode=display">L = \bigg(\sum Q(z) * log(P(x \vert z))\bigg) - KL(Q(z) \| P(z))</script>
+
+<p>Here, <script type="math/tex">\sum Q(z) * log(P(x \vert z))</script> is the likelihood of observing x given hidden variable z and <script type="math/tex">KL(Q(z) \| P(z))</script> is the KL-Divergence between distributions <script type="math/tex">P</script> and <script type="math/tex">Q</script>.
+Therefore, Inorder to maximize the variational lower bound <script type="math/tex">L</script>, we would like to minimize the KL-Divergence and maximize the Likelihood.</p>
+
+<p><img src="images/img1.png" alt="alt text" /></p>
+
+<p>Consider above graphical model with <script type="math/tex">z</script> as the hidden variable and <script type="math/tex">x</script> as the observation. <script type="math/tex">P(x \vert z)</script> is the mapping from hidden variable to <script type="math/tex">x</script>. Assume there exists another distribution <script type="math/tex">Q(z \vert x)</script> which maps <script type="math/tex">x</script> to <script type="math/tex">z</script>. since, <script type="math/tex">P(z \vert x)</script> is hard to compute. Therefore, we want to find another distribution <script type="math/tex">Q(z \vert x)</script> which is tractable and similar to <script type="math/tex">P(z \vert x)</script>.</p>
+
+<p><img src="images/img2.png" alt="alt text" /></p>
+
+<p>Let’s assume <script type="math/tex">Q(z \vert x)</script> is a function is obtained from a neural network which takes input <script type="math/tex">x</script> and maps it to <script type="math/tex">z</script>. Lets assume that <script type="math/tex">P(x \vert z)</script> is another neural network which takes this <script type="math/tex">z</script> and maps it to <script type="math/tex">x</script>. We will assume that <script type="math/tex">z</script> follows a gaussian distribution.</p>
+
+<script type="math/tex; mode=display">L = \bigg(\sum Q(z) * log(P(x \vert z))\bigg) - KL(Q(z) \| P(z))</script>
+
+<p>From the equation above we would like to maximize the L term i.e. Minimize the KL-Divergence by bringing <script type="math/tex">Q(z \vert x)</script> closer to a gaussian distribution. From <script type="math/tex">z</script> to <script type="math/tex">x'</script> there is a neural network in form of a decoder. This neural network is completely deterministic not probabilistic. Since there is a deterministic function between <script type="math/tex">z</script> and <script type="math/tex">x'</script>. Therefore, <script type="math/tex">P(z \vert x)</script> can be written as <script type="math/tex">P(x \vert x')</script>. Now, assume that the distribution <script type="math/tex">P(x \vert x')</script> follows a gaussian distribution, then there is term of the form <script type="math/tex">e^{-\vert x - x' \vert ^2}</script>. and now if we take apply on this term then it becomes of the form <script type="math/tex">\vert x - x' \vert ^ 2</script>. This term is similar to the reconstruction error or L2 loss. Similarly, if we assume that distribution of <script type="math/tex">P(x \vert x')</script> is bernoulli then the after applying log it becomes similar to cross entropy loss.</p>
+
+<p>Now, we have a autoencoder available with cost as <script type="math/tex">\vert x - x' \vert ^ 2</script> and a KL-Divergence between <script type="math/tex">Q(z \vert x)</script> and a known distribution for example gaussian.</p>
+
+<p>Assuming that the distribution of the <script type="math/tex">z</script> is normal. Therefore, the network can’t be trained if it produces the latent code <script type="math/tex">z</script> directly by sampling because then the gradients won’t be obtained. We would therefore like our model to produce the parameters of the normal distribution instead of the code. This parameters can then be used for obtaining the latent code. The network is therefore now supposed to produce two parameters <script type="math/tex">\mu</script> and <script type="math/tex">\sigma</script>. <script type="math/tex">\mu</script> is <script type="math/tex">d</script>-dimensional vector whereas usually <script type="math/tex">\sigma</script> is <script type="math/tex">d \times d</script>-dimensional matrix. For simplicity we would assume <script type="math/tex">\sigma</script> to be diagonal i.e. a d-dimensional vector. Therefore, the network is now trained to generate mean and variance which are <script type="math/tex">d</script>-dimensional. This mean and variance are then used to sample a code from normal distribution. The sample procedure is done a obtaining a d-dimensional random vector <script type="math/tex">n</script> and then mulitiplying it with variance and then adding the result to mean i.e. <script type="math/tex">z = \mu + (\sigma * n)</script>. Thus this will lead to constraining the network to store the information in the latent code as efficiently as possible.</p>
 
 <h2 id="experiments">Experiments</h2>
 
