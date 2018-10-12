@@ -428,11 +428,45 @@ Therefore, Inorder to maximize the variational lower bound <script type="math/te
   <p>once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.</p>
 </blockquote>
 
+<ul>
+  <li>Experiment on effect of weightage of KL-Divergence on Disentaglement of features</li>
+</ul>
+
+<p><img src="images/bvae.png" alt="alt text" class="center-image" /></p>
+
+<blockquote>
+  <p>The latent code was choosen to be a 10 dimensional vector. Each column in the image above refers to a single dimension in the latent space. The instances in the columns are the reconstructions obtained when a single dimension of a latent code is interpolated from -3 to 3. As can be seen from the results above, first 4 dimensions doesn’t contain any useful information about the features whereas the 5th dimension contains information about the position in x-axis. 8th dimension contains information about structure while 10th dimension contains information about the rotaton.</p>
+</blockquote>
+
 <h2 id="applications-of-vae">Applications of VAE</h2>
 
 <h4 id="disentangled-representation-using-variational-autoencoder">Disentangled representation using variational autoencoder</h4>
 
-<p>Variational autoencoder can also be used for learning disentangled representations. Disentangled representations are the representations in which the individual output of the neurons in the latent space are uncorrelated that is each neuron in the latent space represents some unique feature present in the input. In order to implement this class of variational autoencoder is to only add an extra hyperparameter named Beta which will act a weight on the KL divergence term of the loss function. Thus if we enforce the KL divergence term with a very high weight then this would force the network to have efficient compression of information in the latent code leading to disentangled representation.</p>
+<p>If each dimension in the latent code contains information about only one single feature and insensitive to all other features then the latent code is said to contain information about disentangled representation. The advantage of achieving disentangle representations is the good generalization and interpretability. Some of the examples of disentangled representation is the generation of images of human faces wherein individual features such a hair color, smile and face color can be controlled by varying only the single dimension of the latent code.</p>
+
+<p><script type="math/tex">\beta</script> vae is one of the variation of vanilla vae. Similar to vae, we would like to maximize the likelihood of reconstructing the same input image and also minimize the divergence between the distributions.</p>
+
+<script type="math/tex; mode=display">\max_{\phi ,\theta} E_{x\sim D}[E_{z\sim q_\phi (z\vert x)} log p_\theta (x \vert z)]</script>
+
+<p>subject to <script type="math/tex">% <![CDATA[
+D_{KL}(q_\phi (z \vert x) \| p_\theta (z)) < \delta %]]></script></p>
+
+<p>The above equation can be written in the form of a lagrangian under KKT condition using a lagrangian multiplier <script type="math/tex">\beta</script>. Therefore, the above constrained equation can be rewritten as maximizing the below equation.</p>
+
+<script type="math/tex; mode=display">F(\theta, \phi, \beta) = E_{z\sim q_{\phi (z \vert x)}} log p_\theta (x \vert z) - \beta (D_{KL}(q_\phi (z \vert x) \| p_\theta (z)) - \delta)</script>
+
+<script type="math/tex; mode=display">F(\theta, \phi, \beta) = E_{z\sim q_{\phi (z \vert x)}} log p_\theta (x \vert z) - \beta D_{KL}(q_\phi (z \vert x) \| p_\theta (z)) + \beta \delta</script>
+
+<script type="math/tex; mode=display">F(\theta, \phi, \beta) \ge E_{z\sim q_{\phi (z \vert x)}} log p_\theta (x \vert z) - \beta D_{KL}(q_\phi (z \vert x) \| p_\theta (z))</script>
+
+<p>Therefore, the total loss function of <script type="math/tex">\beta</script>-VAE becomes,</p>
+
+<script type="math/tex; mode=display">L_{BETA}(\phi, \beta) = -E_{z\sim q_\phi (z\vert x)} log p_\theta (x\vert z) + \beta D_{KL}(q_\phi (z \vert x) \| p_\theta (z))</script>
+
+<p>here, <script type="math/tex">\beta</script> is a hyperparameter which is a lagrangian multiplier.</p>
+
+<p>The only difference between vanilla VAE and <script type="math/tex">\beta</script>-VAE is that in vanilla vae value of <script type="math/tex">\beta</script> is 1 while in <script type="math/tex">\beta</script>-VAE the value of <script type="math/tex">\beta</script> is greater than 1.
+Therefore, when the value of <script type="math/tex">\beta</script> is increased then it enforces more constrain on the network to follows a gaussian distribution and also preserve the relevant information as efficiently as possible this efficient use of the latent code leads to learning of disentangled representation.</p>
 
 <h4 id="denoising-autoencoders">Denoising Autoencoders</h4>
 
