@@ -286,11 +286,41 @@ Original Image             |  Reconstructed Image
 
 > once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.
 
+* Experiment on effect of weightage of KL-Divergence on Disentaglement of features
+
+![alt text](images/bvae.png){: .center-image }
+
+> The latent code was choosen to be a 10 dimensional vector. Each column in the image above refers to a single dimension in the latent space. The instances in the columns are the reconstructions obtained when a single dimension of a latent code is interpolated from -3 to 3. As can be seen from the results above, first 4 dimensions doesn't contain any useful information about the features whereas the 5th dimension contains information about the position in x-axis. 8th dimension contains information about structure while 10th dimension contains information about the rotaton.
+
 ## Applications of VAE
 
 #### Disentangled representation using variational autoencoder
 
-Variational autoencoder can also be used for learning disentangled representations. Disentangled representations are the representations in which the individual output of the neurons in the latent space are uncorrelated that is each neuron in the latent space represents some unique feature present in the input. In order to implement this class of variational autoencoder is to only add an extra hyperparameter named Beta which will act a weight on the KL divergence term of the loss function. Thus if we enforce the KL divergence term with a very high weight then this would force the network to have efficient compression of information in the latent code leading to disentangled representation.
+If each dimension in the latent code contains information about only one single feature and insensitive to all other features then the latent code is said to contain information about disentangled representation. The advantage of achieving disentangle representations is the good generalization and interpretability. Some of the examples of disentangled representation is the generation of images of human faces wherein individual features such a hair color, smile and face color can be controlled by varying only the single dimension of the latent code.
+
+$$\beta$$ vae is one of the variation of vanilla vae. Similar to vae, we would like to maximize the likelihood of reconstructing the same input image and also minimize the divergence between the distributions.
+
+$$\max_{\phi ,\theta} E_{x\sim D}[E_{z\sim q_\phi (z\vert x)} log p_\theta (x \vert z)]$$
+
+subject to $$D_{KL}(q_\phi (z \vert x) \| p_\theta (z)) < \delta$$
+
+The above equation can be written in the form of a lagrangian under KKT condition using a lagrangian multiplier $$\beta$$. Therefore, the above constrained equation can be rewritten as maximizing the below equation.
+
+$$F(\theta, \phi, \beta) = E_{z\sim q_{\phi (z \vert x)}} log p_\theta (x \vert z) - \beta (D_{KL}(q_\phi (z \vert x) \| p_\theta (z)) - \delta)$$
+
+$$F(\theta, \phi, \beta) = E_{z\sim q_{\phi (z \vert x)}} log p_\theta (x \vert z) - \beta D_{KL}(q_\phi (z \vert x) \| p_\theta (z)) + \beta \delta$$
+
+$$F(\theta, \phi, \beta) \ge E_{z\sim q_{\phi (z \vert x)}} log p_\theta (x \vert z) - \beta D_{KL}(q_\phi (z \vert x) \| p_\theta (z))$$
+
+Therefore, the total loss function of $$\beta$$-VAE becomes,
+
+$$L_{BETA}(\phi, \beta) = -E_{z\sim q_\phi (z\vert x)} log p_\theta (x\vert z) + \beta D_{KL}(q_\phi (z \vert x) \| p_\theta (z))$$
+
+here, $$\beta$$ is a hyperparameter which is a lagrangian multiplier.
+
+The only difference between vanilla VAE and $$\beta$$-VAE is that in vanilla vae value of $$\beta$$ is 1 while in $$\beta$$-VAE the value of $$\beta$$ is greater than 1.
+Therefore, when the value of $$\beta$$ is increased then it enforces more constrain on the network to follows a gaussian distribution and also preserve the relevant information as efficiently as possible this efficient use of the latent code leads to learning of disentangled representation.
+
 
 #### Denoising Autoencoders
 
