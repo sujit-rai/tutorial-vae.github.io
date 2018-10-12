@@ -58,20 +58,22 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 -->
 ## Generative Models
 
-- Similar to autoencoders,a generative model also learns in unsupervised fashion.
+- Similar to autoencoders generative models also learns from unsupervised data.
 
 - In contrast to Autoencoder they come with an objective of generating the data points which follow P(X).
 
-- One can question what can we leverage out of such model. So lets see some use cases :
+- One can question what can we leverage out of such a model. So lets see some use cases :
 	> We can generate data points following P(X) on the fly.
 	>
-	> Henceforth we need not save the dataset once we learn a generative model on it. Mathematically we learn the marginal distribution on X.
+	> Henceforth we need not save the dataset once we learn a generative model on it. Precisely we learn the marginal distribution over X.
 	>
-	> Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as representation learning is that if a model can produce instances similar to training data distribution then it must have learned some useful properties about the training instances too).
+	> Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as a representation learning task is that if a model can produce instances similar to training instances then it must have learned some useful features about the training instances).
 	>
-	> For representation learning, any intermediate reprsentation of the generating model can be used. Empirically it has been observed that penultimate layer serves the purpose best.
+	> For representation learning, any intermediate representation of the generating model can be used. 
+	> 
+	> Empirically it has been observed that the penultimate layer serves the purpose best but one may experiment using one or more intermediate layers. 
 
-- Great! Now we would explore that why is it hard to achieve a generative model.
+- Great! Now we would explore that why is it hard to learn a generative model.
 	> Let's revisit the definition of Generative model i.e models which come with an objective of generating instances similar to P(X) but wait, **do we even know what is P(X) ?**
 	>
 	> The problem is even if we have some prior knowledge on input data distribution, still approximating marginal distribution of X is intractable.(Under problem setting we will go in more detail)
@@ -82,7 +84,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 ## Problem Setting
 -
-		![alt text](images/observation_model.png){: .center-image }
+		![alt text](images/observation_model.png ){: .center-image }
 
 - Consider X as input data having "N" i.i.d data points.
 
@@ -91,7 +93,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - Process of generating data is done in two steps which are as follows : 
 	> **Step 1** : Value z<sup>i</sup> is generated from some prior distribution p<sub>&theta;*</sub>(z).
 	>
-	> **Step 2** : Then a value of x<sup>i</sup> is generated following some conditional distribution i.e p<sub>&theta;*</sub>(x\|z).
+	> **Step 2** : Then a value x<sup>i</sup> is generated following some conditional distribution i.e p<sub>&theta;*</sub>(x\|z).
 	> 
 - We assume that prior p<sub>&theta;*</sub>(z) and likelihood p<sub>&theta;\*</sub>(x\|z) come from parametric families of distribution p<sub>&theta;</sub>(z) and p<sub>&theta;</sub>(x\|z) respectively.
 
@@ -102,7 +104,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 		![alt text](images/marginal.png){: .center-image }
 
-	- Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.
+	- Consider latent space to be d dimensional, then the number of integrals will be d (as z is random variable in d dimensions) in above equation which makes it intractable.
 
 - Now we are ready to define the problems which authors of [VAE](https://arxiv.org/abs/1312.6114) try to solve : 
 	> **Maximum likelihood estimation for the parameters &theta;**.<br/>One can see their use as mimicing the hidden process to generate data similar to real data.
@@ -119,11 +121,11 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - From coding theory perspective one can look the latent dimension values(z<sub>i</sub>) as latent codes or representations which are corresponding to data instances(x<sub>i</sub>).
 
-- Since an encoder in standard autoencoder learns to map each data point(x<sub>i</sub>) to its corresponding representation(z<sub>i</sub>) in latent space while a recognition model parametrized by &phi; parameters learns a conditional distribution over latent codes.
+- Since an encoder of standard autoencoder learns to map each data point(x<sub>i</sub>) to its corresponding representation(z<sub>i</sub>) in latent space while a recognition model parametrized by &phi; parameters learns a conditional distribution over latent codes.
 
-- Henceforth one can easily observe that a **recognition model** is nothing but a **probabilistic encoder**.
+- Henceforth one can easily observe that a **recognition model** is nothing but a **probabilistic encoder** which learns the conditional distrbition P(Z\|X).
 
-- In a similar way, we can also say the decoder as **probabilistic decoder** which learns the conditional distribution P(X\|Z).
+- In a similar way, we can also say the decoder as **probabilistic decoder** which learns the conditional distribution Q(X\|Z).
 
 ![alt text](images/prob_encoder.png){: .center-image }
 
@@ -133,9 +135,9 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - For analogy one can see a random value in latent space as **imagination** and we would like the decoder to turn this imagination into something **realistic** in input space.
 
-- In the variational autoencoder model, the encoder learns a conditional probability distribution i.e P(z\|x) while the decoder learns a deterministic function which maps a value in latent space to a value in input space.
+- In the variational autoencoder model, the encoder learns a conditional probability distribution i.e $$P(Z\vert X)$$ while the decoder learns a deterministic function which maps a value in latent space to a value in input space.
 
-- Since we want to approximate intratctable true posterior distribution via the encoder's learned distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it be a multivariate Gaussian Distribution.
+- Since we want to approximate intractable true posterior distribution via the encoder's learned distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it to be a multivariate Gaussian Distribution.
 
 - As with multivariates the covariance matrix increases quadratically with dimesions we restrict the encoder distribution family to diagonal Gaussian distributions. 
 

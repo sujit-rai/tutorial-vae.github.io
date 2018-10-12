@@ -118,23 +118,25 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
 
 <ul>
   <li>
-    <p>Similar to autoencoders,a generative model also learns in unsupervised fashion.</p>
+    <p>Similar to autoencoders generative models also learns from unsupervised data.</p>
   </li>
   <li>
     <p>In contrast to Autoencoder they come with an objective of generating the data points which follow P(X).</p>
   </li>
-  <li>One can question what can we leverage out of such model. So lets see some use cases :
+  <li>One can question what can we leverage out of such a model. So lets see some use cases :
     <blockquote>
       <p>We can generate data points following P(X) on the fly.</p>
 
-      <p>Henceforth we need not save the dataset once we learn a generative model on it. Mathematically we learn the marginal distribution on X.</p>
+      <p>Henceforth we need not save the dataset once we learn a generative model on it. Precisely we learn the marginal distribution over X.</p>
 
-      <p>Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as representation learning is that if a model can produce instances similar to training data distribution then it must have learned some useful properties about the training instances too).</p>
+      <p>Moreover one can look learning a generative model as representation learning. (An intuitive explanation for seeing it as a representation learning task is that if a model can produce instances similar to training instances then it must have learned some useful features about the training instances).</p>
 
-      <p>For representation learning, any intermediate reprsentation of the generating model can be used. Empirically it has been observed that penultimate layer serves the purpose best.</p>
+      <p>For representation learning, any intermediate representation of the generating model can be used.</p>
+
+      <p>Empirically it has been observed that the penultimate layer serves the purpose best but one may experiment using one or more intermediate layers.</p>
     </blockquote>
   </li>
-  <li>Great! Now we would explore that why is it hard to achieve a generative model.
+  <li>Great! Now we would explore that why is it hard to learn a generative model.
     <blockquote>
       <p>Let’s revisit the definition of Generative model i.e models which come with an objective of generating instances similar to P(X) but wait, <strong>do we even know what is P(X) ?</strong></p>
 
@@ -162,7 +164,7 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
     <blockquote>
       <p><strong>Step 1</strong> : Value z<sup>i</sup> is generated from some prior distribution p<sub>θ*</sub>(z).</p>
 
-      <p><strong>Step 2</strong> : Then a value of x<sup>i</sup> is generated following some conditional distribution i.e p<sub>θ*</sub>(x|z).</p>
+      <p><strong>Step 2</strong> : Then a value x<sup>i</sup> is generated following some conditional distribution i.e p<sub>θ*</sub>(x|z).</p>
 
     </blockquote>
   </li>
@@ -180,7 +182,7 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
         <p><img src="images/marginal.png" alt="alt text" class="center-image" /></p>
       </li>
       <li>
-        <p>Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.</p>
+        <p>Consider latent space to be d dimensional, then the number of integrals will be d (as z is random variable in d dimensions) in above equation which makes it intractable.</p>
       </li>
     </ul>
   </li>
@@ -207,13 +209,13 @@ This is useful for the applications where marginals are required, for example de
     <p>From coding theory perspective one can look the latent dimension values(z<sub>i</sub>) as latent codes or representations which are corresponding to data instances(x<sub>i</sub>).</p>
   </li>
   <li>
-    <p>Since an encoder in standard autoencoder learns to map each data point(x<sub>i</sub>) to its corresponding representation(z<sub>i</sub>) in latent space while a recognition model parametrized by φ parameters learns a conditional distribution over latent codes.</p>
+    <p>Since an encoder of standard autoencoder learns to map each data point(x<sub>i</sub>) to its corresponding representation(z<sub>i</sub>) in latent space while a recognition model parametrized by φ parameters learns a conditional distribution over latent codes.</p>
   </li>
   <li>
-    <p>Henceforth one can easily observe that a <strong>recognition model</strong> is nothing but a <strong>probabilistic encoder</strong>.</p>
+    <p>Henceforth one can easily observe that a <strong>recognition model</strong> is nothing but a <strong>probabilistic encoder</strong> which learns the conditional distrbition P(Z|X).</p>
   </li>
   <li>
-    <p>In a similar way, we can also say the decoder as <strong>probabilistic decoder</strong> which learns the conditional distribution P(X|Z).</p>
+    <p>In a similar way, we can also say the decoder as <strong>probabilistic decoder</strong> which learns the conditional distribution Q(X|Z).</p>
   </li>
 </ul>
 
@@ -229,10 +231,10 @@ This is useful for the applications where marginals are required, for example de
     <p>For analogy one can see a random value in latent space as <strong>imagination</strong> and we would like the decoder to turn this imagination into something <strong>realistic</strong> in input space.</p>
   </li>
   <li>
-    <p>In the variational autoencoder model, the encoder learns a conditional probability distribution i.e P(z|x) while the decoder learns a deterministic function which maps a value in latent space to a value in input space.</p>
+    <p>In the variational autoencoder model, the encoder learns a conditional probability distribution i.e <script type="math/tex">P(Z\vert X)</script> while the decoder learns a deterministic function which maps a value in latent space to a value in input space.</p>
   </li>
   <li>
-    <p>Since we want to approximate intratctable true posterior distribution via the encoder’s learned distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it be a multivariate Gaussian Distribution.</p>
+    <p>Since we want to approximate intractable true posterior distribution via the encoder’s learned distribution in latent space(which is in some arbitrary dimension), therefore the approximation should be multivariate and specifically in VAE model we assume it to be a multivariate Gaussian Distribution.</p>
   </li>
   <li>
     <p>As with multivariates the covariance matrix increases quadratically with dimesions we restrict the encoder distribution family to diagonal Gaussian distributions.</p>

@@ -827,3 +827,6 @@ a {
 .center-image {
   margin: 0 auto;
   display: block; }
+
+.caption {
+  display: block; }
