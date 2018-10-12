@@ -77,6 +77,9 @@
 <em>Autoencoder Model, <a href="https://becominghuman.ai/understanding-autoencoders-unsupervised-learning-technique-82fb3fbaec2">Image Source</a></em></p>
 
 <ul>
+  <li>
+    <p>Now if we closely observe above model, then one can see that first Input image(X<sub>i</sub>) is transformed to a latent space representation(Z<sub>i</sub>) and then reconstructed back to input image(X<sub>i</sub>). So here we expect the Z<sub>i</sub> to extract important features.</p>
+  </li>
   <li>Lets introduce some notations that will be used in upcoming sections
     <blockquote>
       <p>X ==&gt; input data <br />
@@ -86,9 +89,6 @@ D ==&gt; dimension of input data <br />
 Z ==&gt; dimension of latent space <br />
 P(X) ==&gt; Probability distribution of Input <br /></p>
     </blockquote>
-  </li>
-  <li>
-    <p>Now if we closely observe above model, then one can see that first Input image(X<sub>i</sub>) is transformed to a latent space representation(Z<sub>i</sub>) and then reconstructed back to Input image(X<sub>i</sub>). So here we expect the Z<sub>i</sub> to extract important features.</p>
   </li>
   <li>There are two variants of autoencoder :
     <ul>
@@ -103,9 +103,9 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
       </li>
       <li><em>Undercomplete Autoencoders</em>
         <blockquote>
-          <p>The autoencoders where <strong>latent space dimension is significantly less than the input dimension</strong> are called as Overcomplete Autoencoders.</p>
+          <p>The autoencoders where <strong>latent space dimension is significantly less than the input dimension</strong> are called as Undercomplete Autoencoders.</p>
 
-          <p>In this tutorial such type of an autoencoder is discussed in detail.</p>
+          <p>In this tutorial we will focus on this variant of autoencoder in detail.</p>
         </blockquote>
       </li>
     </ul>

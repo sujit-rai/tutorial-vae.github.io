@@ -32,6 +32,8 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 ![alt text](images/autoencoder.png){: .center-image }
 *Autoencoder Model, [Image Source](https://becominghuman.ai/understanding-autoencoders-unsupervised-learning-technique-82fb3fbaec2)*
 
+- Now if we closely observe above model, then one can see that first Input image(X<sub>i</sub>) is transformed to a latent space representation(Z<sub>i</sub>) and then reconstructed back to input image(X<sub>i</sub>). So here we expect the Z<sub>i</sub> to extract important features.
+
 - Lets introduce some notations that will be used in upcoming sections
 > X ==> input data <br/>
 > N ==> Number of instances in training data <br/>
@@ -39,8 +41,6 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 > D ==> dimension of input data <br/>
 > Z ==> dimension of latent space <br/>
 > P(X) ==> Probability distribution of Input <br/>
-
-- Now if we closely observe above model, then one can see that first Input image(X<sub>i</sub>) is transformed to a latent space representation(Z<sub>i</sub>) and then reconstructed back to Input image(X<sub>i</sub>). So here we expect the Z<sub>i</sub> to extract important features.
 
 - There are two variants of autoencoder : 
 	- _Overcomplete Autoencoders_
@@ -50,10 +50,10 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 	>
 	> We will not discuss this variant in detail because it is out of the scope of tutorial.
 	- _Undercomplete Autoencoders_
-	> The autoencoders where **latent space dimension is significantly less than the input dimension** are called as Overcomplete Autoencoders.
+	> The autoencoders where **latent space dimension is significantly less than the input dimension** are called as Undercomplete Autoencoders.
 	>
-	> In this tutorial such type of an autoencoder is discussed in detail.
-
+	> In this tutorial we will focus on this variant of autoencoder in detail.
+	
 <!--These are machine learning models under unsupervised learning that come with a goal to learn good representations by trying to reconstruct the input itself. Main problem of autoencoders is not let it learn a identity function which is alleviated by regularized autoencoders(eg Sparse Autoencoders). Sparse Autoencoders come with a motive of getting sparse representations in latent space which essentially means that only few neurons are active for a particular data point. This sparse constraint in latent space forces the model to learn more good representations. In regularized autoencoders, we actually misuse the meaning of regularization. By definition regularization is our prior belief on distribution of model’s parameters where as in regularized autoencoders the regularization is a prior assumed on latent space which is **not on parameters rather on data.**
 -->
 ## Generative Models
