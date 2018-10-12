@@ -386,9 +386,15 @@ Variational autoencoders imposes uncertainty in the hidden layer via reparameter
 ## References
 
 [Auto-Encoding Variational Bayes](https://arxiv.org/pdf/1312.6114.pdf)
+
 [Tutorial on Variational Autoencoders](https://arxiv.org/pdf/1606.05908.pdf)
+
 [Stochastic Backpropagation and Approximate Inference in Deep Generative Models](https://arxiv.org/pdf/1401.4082.pdf)
+
 [Importance weighted autoencoders](https://arxiv.org/pdf/1509.00519)
+
 [Variational Autoencoder - Ali Ghodsi](https://www.youtube.com/watch?v=uaaqyVS9-rM)
+
 [beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework](https://openreview.net/pdf?id=Sy2fzU9gl)
+
 [Denoising Criterion for Variational Auto-Encoding Framework](https://arxiv.org/pdf/1511.06406)
