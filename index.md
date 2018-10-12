@@ -4,14 +4,15 @@ layout: default
 This is a preliminary report about the tutorial on Variational AutoEncoder. This report consists of short summary about the concepts and experiments that will be discussed in the tutorial.
 
 # Outline
-- Basics of autoencoders
-- Generative models
-- Problem Setting
-- Connecting Neural Networks in Probability World
-- Introduction to Variational autoencoder
-- Maths behind Variational autoencoder
+- [Basics of Autoencoders](#basics-of-autoencoders)
+- [Generative models](#generative-models)
+- [Problem Setting](#problem-setting)
+- [Connecting Neural Networks in Probability World](#connecting-neural-networks-in-probability-world)
+- [Introduction to Variational autoencoder](#introduction-to-variational-autoencoder)
+- [Reparametrization Trick](#reparametrization-trick)
+- [Maths behind VAE](#maths-behind-vae)
 - [Code Snippet for VAE](code)
-- Experiments 
+- [Experiments](#experiments) 
   - Latent Space Visualizations
   - Visualization of cluster formation
   - Effect of change in weightage for KL divergance during training
@@ -172,6 +173,20 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 
 <!--Before jumping to VAE, we would like to first connect the autoencoders with probabilistic graphical models. We can view the encoder as approximating conditional probability distribution -- p(z\|x) where z is denoting latent space random var & x is input data point. Similarly decoder can be viewed as approximating a conditional distribution -- q(x\|z). So we would like to use the decoder part as generative model since it learns to map a point in latent space to a point in input space. For a decoder to get trained we also want encoder(only for training) as it provides a meaning full point in latent space corresponding to an input. But issue is that both our encoders & decoders are deterministic functions but a generative model should be stochastic (Eg : stochasticity can be seen as generating images of 3 digit but in different orientations). So to make our traditional Autoencoders stochastic we make use of re-parametrization trick which serves as core of VAE learning. -->
+
+
+## Reparametrization Trick
+
+![alt-text](images/reparam.png)
+*Reparametrization Trick, [Image Source](https://arxiv.org/abs/1606.05908)*
+
+- Please refer above visualization for analyzing the reparmetrization trick.
+
+- Since we include a sampling process to obtain a code in latent space, our VAE network(on left) cannot be learned by backpropogation as random process of sampling is non-differentiable.
+
+- Henceforth in order to make network learn via backpropogation we make our function of sampling differentiable in such a way that it gets gradients for updating mean and variance and simuntaneously have stochasticity.
+
+- So one can observe that network(right) shown in above image is now learnable.
 
 ## Maths behind VAE
 
