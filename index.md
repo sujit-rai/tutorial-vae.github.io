@@ -29,7 +29,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 
 
-![alt text](images/autoencoder.png)
+![alt text](images/autoencoder.png){: .center-image }
 *Autoencoder Model, [Image Source](https://becominghuman.ai/understanding-autoencoders-unsupervised-learning-technique-82fb3fbaec2)*
 
 - Lets introduce some notations that will be used in upcoming sections
@@ -82,7 +82,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 ## Problem Setting
 -
-		![alt text](images/observation_model.png)
+		![alt text](images/observation_model.png){: .center-image }
 
 - Consider X as input data having "N" i.i.d data points.
 
@@ -100,7 +100,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 - Let us revisit the point that why learning marginal distribution of X is intractable.
 	- Marginal distribution can be written as follows : 
 
-		![alt text](images/marginal.png)
+		![alt text](images/marginal.png){: .center-image }
 
 	- Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.
 
@@ -125,7 +125,7 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 
 - In a similar way, we can also say the decoder as **probabilistic decoder** which learns the conditional distribution P(X\|Z).
 
-![alt text](images/prob_encoder.png)
+![alt text](images/prob_encoder.png){: .center-image }
 
 ## Introduction to Variational Autoencoder
 
@@ -143,13 +143,13 @@ This is a preliminary report about the tutorial on Variational AutoEncoder. This
 	> Instead of learning representation in latent space for a given data poin, we rather learn the mean & variance of the learned distribution. 
 
 	
-![alt text](images/encoder.png)
+![alt text](images/encoder.png){: .center-image }
 
 - As the encoder & decoder networks in an autoencoder are deterministic but we want our **imagination** to be random values in latent space, so this randomness is achieved using **reparametrization trick**.(We will cover about reparametrization later in this blog.)
 
 ## Intuition behind VAE
 
-![alt text](images/intuition.png)
+![alt text](images/intuition.png){: .center-image }
 
 - The conditional distribution (i.e P(Z\|X)) in blue color is the one which is **true intractable**(because we have assumed Z to be hidden in our problem setting) distribution where as the one in red color is our approximation to this intractable distribution.
 
@@ -235,11 +235,11 @@ $$ L = \bigg(\sum Q(z) * log(P(x \vert z))\bigg) - KL(Q(z) \| P(z)) $$
 Here, $$\sum Q(z) * log(P(x \vert z))$$ is the likelihood of observing x given hidden variable z and $$KL(Q(z) \| P(z))$$ is the KL-Divergence between distributions $$P$$ and $$Q$$.
 Therefore, Inorder to maximize the variational lower bound $$L$$, we would like to minimize the KL-Divergence and maximize the Likelihood.
 
-![alt text](images/img1.png)
+![alt text](images/img1.png){: .center-image }
 
 Consider above graphical model with $$z$$ as the hidden variable and $$x$$ as the observation. $$P(x \vert z)$$ is the mapping from hidden variable to $$x$$. Assume there exists another distribution $$Q(z \vert x)$$ which maps $$x$$ to $$z$$. since, $$P(z \vert x)$$ is hard to compute. Therefore, we want to find another distribution $$Q(z \vert x)$$ which is tractable and similar to $$P(z \vert x)$$. 
 
-![alt text](images/img2.png)
+![alt text](images/img2.png){: .center-image }
 
 Let's assume $$Q(z \vert x)$$ is a function is obtained from a neural network which takes input $$x$$ and maps it to $$z$$. Lets assume that $$P(x \vert z)$$ is another neural network which takes this $$z$$ and maps it to $$x$$. We will assume that $$z$$ follows a gaussian distribution.
 
@@ -270,19 +270,19 @@ Original Image             |  Reconstructed Image
 
 * Generation of blurry samples
 
-![alt text](images/gen-img.png)
+![alt text](images/gen-img.png){: .center-image }
 
 > One of the disadvantages of VAE is that it leads to the generation of blurry samples. we except to demonstrate that effect through this experiment.
 
 * Interpolation in latent space
 
-![alt text](images/interpolation-img.png)
+![alt text](images/interpolation-img.png){: .center-image }
 
 * Experiment fact on learning VAE
 
-![alt text](images/kl_loss.png)
+![alt text](images/kl_loss.png){: .center-image }
 
-![alt text](images/reconstruction_loss.png)
+![alt text](images/reconstruction_loss.png){: .center-image }
 
 > once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.
 

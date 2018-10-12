@@ -823,3 +823,7 @@ a {
 
 .site-footer-credits {
   color: #819198; }
+
+.center-image {
+  margin: 0 auto;
+  display: block; }
