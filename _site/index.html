@@ -73,7 +73,7 @@
   <p>The idea is pretty straightford here i.e in the process of reconstructing the input we would like the Autoencoder model to learn important properties(aka <strong>features/representation</strong> in machine learning world) which are enough informative to reconstruct the input itself.</p>
 </blockquote>
 
-<p><img src="images/autoencoder.png" alt="alt text" />
+<p><img src="images/autoencoder.png" alt="alt text" class="center-image" />
 <em>Autoencoder Model, <a href="https://becominghuman.ai/understanding-autoencoders-unsupervised-learning-technique-82fb3fbaec2">Image Source</a></em></p>
 
 <ul>
@@ -149,7 +149,7 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
 
 <h2 id="problem-setting">Problem Setting</h2>
 <p>-
-		<img src="images/observation_model.png" alt="alt text" /></p>
+		<img src="images/observation_model.png" alt="alt text" class="center-image" /></p>
 
 <ul>
   <li>
@@ -177,7 +177,7 @@ P(X) ==&gt; Probability distribution of Input <br /></p>
       <li>
         <p>Marginal distribution can be written as follows :</p>
 
-        <p><img src="images/marginal.png" alt="alt text" /></p>
+        <p><img src="images/marginal.png" alt="alt text" class="center-image" /></p>
       </li>
       <li>
         <p>Consider latent space to be d dimensional, then the number of integrals will be d in above equation which makes it intractable.</p>
@@ -217,7 +217,7 @@ This is useful for the applications where marginals are required, for example de
   </li>
 </ul>
 
-<p><img src="images/prob_encoder.png" alt="alt text" /></p>
+<p><img src="images/prob_encoder.png" alt="alt text" class="center-image" /></p>
 
 <h2 id="introduction-to-variational-autoencoder">Introduction to Variational Autoencoder</h2>
 
@@ -245,7 +245,7 @@ This is useful for the applications where marginals are required, for example de
   </li>
 </ul>
 
-<p><img src="images/encoder.png" alt="alt text" /></p>
+<p><img src="images/encoder.png" alt="alt text" class="center-image" /></p>
 
 <ul>
   <li>As the encoder &amp; decoder networks in an autoencoder are deterministic but we want our <strong>imagination</strong> to be random values in latent space, so this randomness is achieved using <strong>reparametrization trick</strong>.(We will cover about reparametrization later in this blog.)</li>
@@ -253,7 +253,7 @@ This is useful for the applications where marginals are required, for example de
 
 <h2 id="intuition-behind-vae">Intuition behind VAE</h2>
 
-<p><img src="images/intuition.png" alt="alt text" /></p>
+<p><img src="images/intuition.png" alt="alt text" class="center-image" /></p>
 
 <ul>
   <li>
@@ -347,11 +347,11 @@ The two important properties of KL-Divergence are as follows</p>
 <p>Here, <script type="math/tex">\sum Q(z) * log(P(x \vert z))</script> is the likelihood of observing x given hidden variable z and <script type="math/tex">KL(Q(z) \| P(z))</script> is the KL-Divergence between distributions <script type="math/tex">P</script> and <script type="math/tex">Q</script>.
 Therefore, Inorder to maximize the variational lower bound <script type="math/tex">L</script>, we would like to minimize the KL-Divergence and maximize the Likelihood.</p>
 
-<p><img src="images/img1.png" alt="alt text" /></p>
+<p><img src="images/img1.png" alt="alt text" class="center-image" /></p>
 
 <p>Consider above graphical model with <script type="math/tex">z</script> as the hidden variable and <script type="math/tex">x</script> as the observation. <script type="math/tex">P(x \vert z)</script> is the mapping from hidden variable to <script type="math/tex">x</script>. Assume there exists another distribution <script type="math/tex">Q(z \vert x)</script> which maps <script type="math/tex">x</script> to <script type="math/tex">z</script>. since, <script type="math/tex">P(z \vert x)</script> is hard to compute. Therefore, we want to find another distribution <script type="math/tex">Q(z \vert x)</script> which is tractable and similar to <script type="math/tex">P(z \vert x)</script>.</p>
 
-<p><img src="images/img2.png" alt="alt text" /></p>
+<p><img src="images/img2.png" alt="alt text" class="center-image" /></p>
 
 <p>Let’s assume <script type="math/tex">Q(z \vert x)</script> is a function is obtained from a neural network which takes input <script type="math/tex">x</script> and maps it to <script type="math/tex">z</script>. Lets assume that <script type="math/tex">P(x \vert z)</script> is another neural network which takes this <script type="math/tex">z</script> and maps it to <script type="math/tex">x</script>. We will assume that <script type="math/tex">z</script> follows a gaussian distribution.</p>
 
@@ -402,7 +402,7 @@ Therefore, Inorder to maximize the variational lower bound <script type="math/te
   <li>Generation of blurry samples</li>
 </ul>
 
-<p><img src="images/gen-img.png" alt="alt text" /></p>
+<p><img src="images/gen-img.png" alt="alt text" class="center-image" /></p>
 
 <blockquote>
   <p>One of the disadvantages of VAE is that it leads to the generation of blurry samples. we except to demonstrate that effect through this experiment.</p>
@@ -412,15 +412,15 @@ Therefore, Inorder to maximize the variational lower bound <script type="math/te
   <li>Interpolation in latent space</li>
 </ul>
 
-<p><img src="images/interpolation-img.png" alt="alt text" /></p>
+<p><img src="images/interpolation-img.png" alt="alt text" class="center-image" /></p>
 
 <ul>
   <li>Experiment fact on learning VAE</li>
 </ul>
 
-<p><img src="images/kl_loss.png" alt="alt text" /></p>
+<p><img src="images/kl_loss.png" alt="alt text" class="center-image" /></p>
 
-<p><img src="images/reconstruction_loss.png" alt="alt text" /></p>
+<p><img src="images/reconstruction_loss.png" alt="alt text" class="center-image" /></p>
 
 <blockquote>
   <p>once we let increase the KL term in loss function then learning is more stable. Intuitively it means once we set a loose bound on learned distribution to match our prior, we get decoder very fast learned and then KL term comes in picture.</p>
